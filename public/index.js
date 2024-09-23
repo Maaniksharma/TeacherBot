@@ -8,51 +8,48 @@ const responseText = document.getElementById("response-text");
 
 const GEMINI_API_KEY = "AIzaSyBT7EsgKI5igL7eXcH_Z0bVKwOzMkPW7XY";
 
-const QUESTIONS = [
-  "what is functions in js?",
-  "what is the diffrence between arrow functions and normal functions in js?",
-  "what is the diffrence between arrow functions and normal functions in js?",
-  "what is the diffrence between arrow functions and normal functions in js?",
-  "what is the diffrence between arrow functions and normal functions in js?",
-];
+let QUESTIONS = [];
 let currentQuestion = -1;
 const genAI = new GoogleGenerativeAI(GEMINI_API_KEY);
 const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
 
-goToNextQuestion();
+async function init() {
+  const response = await fetch("/questions");
+  const data = await response.json();
+  QUESTIONS = data;
+  goToNextQuestion();
+}
 
-
-function checkBtnsVisibility(){
-  if(currentQuestion==0){
+function checkBtnsVisibility() {
+  if (currentQuestion == 0) {
     previousBtn.style.display = "none";
   }
-  if(currentQuestion==1){
+  if (currentQuestion == 1) {
     previousBtn.style.display = "inline-block";
   }
-  if(currentQuestion==QUESTIONS.length-1){
+  if (currentQuestion == QUESTIONS.length - 1) {
     nextBtn.style.display = "none";
   }
-  if(currentQuestion==QUESTIONS.length-2){
+  if (currentQuestion == QUESTIONS.length - 2) {
     nextBtn.style.display = "inline-block";
   }
 }
 
 function goToNextQuestion() {
-   currentQuestion++;
+  currentQuestion++;
   questionLabel.innerText = `Question ${currentQuestion + 1}: ${
     QUESTIONS[currentQuestion]
-    }`;
-    checkBtnsVisibility();
+  }`;
+  checkBtnsVisibility();
 }
 
 function goToPreviousQuestion() {
   currentQuestion--;
   questionLabel.innerText = `Question ${currentQuestion + 1}: ${
     QUESTIONS[currentQuestion]
-    }`;
-    checkBtnsVisibility();
+  }`;
+  checkBtnsVisibility();
 }
-
 
 nextBtn.addEventListener("click", () => {
   goToNextQuestion();
@@ -67,3 +64,5 @@ submitBtn.addEventListener("click", async () => {
   const result = await model.generateContent(prompt);
   responseText.innerText = result.response.text();
 });
+
+init();
